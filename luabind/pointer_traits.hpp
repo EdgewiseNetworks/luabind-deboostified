@@ -24,6 +24,7 @@
 # define LUABIND_GET_POINTER_051023_HPP
 #include <memory>
 #include <stdexcept>
+#include <boost/variant.hpp>
 
 // TODO: Rename to pointer_traits
 
@@ -45,6 +46,12 @@ namespace luabind {
 	T* get_pointer(const std::shared_ptr<T>& pointer)
 	{
 		return pointer.get();
+	}
+
+	template<typename...T>
+	boost::variant<T...>* get_pointer(boost::variant<T...> const& pointer)
+	{
+		return const_cast<boost::variant<T...> *>(std::addressof(pointer));
 	}
 
 
@@ -74,6 +81,13 @@ namespace luabind {
 		{
 			enum { is_pointer = true };
 			using value_type = T;
+		};
+
+		template<typename...T>
+		struct pointer_traits<boost::variant<T...>>
+		{
+			enum { is_pointer = false };
+			using value_type = boost::variant<T...>;
 		};
 
 		template<typename T>
@@ -116,6 +130,12 @@ namespace luabind {
 
 			template<class T>
 			T* get_pointer(std::shared_ptr<T> const&);
+
+			template<typename...T>
+			boost::variant<T...>* get_pointer(boost::variant<T...> const &v)
+			{
+				return const_cast<boost::variant<T...>*>(std::addressof(v));
+			}
 
 			detail::has_get_pointer_::no_overload_tag
 				get_pointer(detail::has_get_pointer_::any);
