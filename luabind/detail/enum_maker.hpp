@@ -1,4 +1,5 @@
 // Copyright (c) 2003 Daniel Wallin and Arvid Norberg
+// Copyright (c) 2020 Edgewise Networks, Inc. All rights reserved.
 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -26,9 +27,12 @@
 
 #include <vector>
 #include <string>
+#include <limits>
+#include <type_traits>
 
 #include <luabind/config.hpp>
 #include <luabind/detail/class_rep.hpp>
+#include <luabind/detail/scoped_enum_helper.hpp>
 
 namespace luabind {
 
@@ -45,11 +49,19 @@ namespace luabind {
 
 	struct value
 	{
+
 		friend class std::vector<value>;
+
+		template<class T, T v>
+		value(const char* name, scoped_enum_value<T, v>)
+			: name_(name)
+			, val_(detail::constexpr_enum_helper<T, v, decltype(val_)>::Value)
+		{}
+
 		template<class T>
 		value(const char* name, T v)
 			: name_(name)
-			, val_(v)
+			, val_(detail::enum_helper<T, decltype(val_)>::CastToLuaNumber(v))
 		{}
 
 		const char* name_;

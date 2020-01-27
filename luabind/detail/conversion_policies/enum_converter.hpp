@@ -1,4 +1,5 @@
 // Copyright (c) 2003 Daniel Wallin and Arvid Norberg
+// Copyright (c) 2020 Edgewise Networks, Inc. All rights reserved.
 
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the "Software"),
@@ -25,6 +26,7 @@
 
 #include <type_traits>
 #include <luabind/detail/type_traits.hpp>
+#include <luabind/detail/scoped_enum_helper.hpp>
 #include <luabind/detail/conversion_policies/conversion_base.hpp>
 
 namespace luabind {
@@ -37,15 +39,16 @@ namespace luabind {
 
 			enum { consumed_args = 1 };
 
-			void to_lua(lua_State* L, int val)
+			template<class T>
+			void to_lua(lua_State* L, T val)
 			{
-				lua_pushnumber(L, val);
+				lua_pushnumber(L, detail::unchecked_enum_helper<T, lua_Number>::CastToLuaNumber(val));
 			}
 
 			template<class T>
 			T to_cpp(lua_State* L, by_value<T>, int index)
 			{
-				return static_cast<T>(static_cast<int>(lua_tonumber(L, index)));
+				return detail::unchecked_enum_helper<T, lua_Number>::CastFromLuaNumber(lua_tonumber(L, index));
 			}
 
 			template<class T>
@@ -61,7 +64,7 @@ namespace luabind {
 			template<class T>
 			T to_cpp(lua_State* L, by_const_reference<T>, int index)
 			{
-				return static_cast<T>(static_cast<int>(lua_tonumber(L, index)));
+				return detail::unchecked_enum_helper<T, lua_Number>::CastFromLuaNumber(lua_tonumber(L, index));
 			}
 
 			template<class T>

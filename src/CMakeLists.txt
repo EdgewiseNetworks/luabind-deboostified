@@ -98,6 +98,7 @@ set(LUABIND_DETAIL_API
 	../luabind/detail/primitives.hpp
 	../luabind/detail/property.hpp
 	../luabind/detail/ref.hpp
+	../luabind/detail/scoped_enum_helper.hpp
 	../luabind/detail/signature_match.hpp
 	../luabind/detail/stack_utils.hpp
 	../luabind/detail/type_traits.hpp
